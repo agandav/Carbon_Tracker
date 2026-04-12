@@ -4,6 +4,10 @@ Shows improvement from CP1's single-job to CP2's batch optimization
 """
 
 import numpy as np
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'core'))
+
 from batch_optimizer import BatchJobOptimizer
 from realtime_monitor import RealTimeMonitor
 import json
@@ -198,7 +202,7 @@ def run_checkpoint2_demo():
         'monitoring_state': monitor.get_dashboard_state()
     }
     
-    with open('/home/claude/checkpoint2_results.json', 'w') as f:
+    with open('../results/checkpoint2_results.json', 'w') as f:
         json.dump(output, f, indent=2)
     
     print("\n" + "=" * 80)

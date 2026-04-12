@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-19T02:41:31.902464",
+  "timestamp": "2026-04-12T04:12:30.004791",
   "checkpoint": 2,
   "new_features": [
     "Batch job optimization with constraints",
@@ -10,20 +10,20 @@
   ],
   "optimization_results": {
     "total_jobs": 5,
-    "baseline_carbon_kg": 314.5849771962852,
-    "optimized_carbon_kg": 320.5629023275613,
-    "carbon_saved_kg": -5.977925131276095,
-    "percent_reduction": -1.900257661555838,
+    "baseline_carbon_kg": 314.66619635652006,
+    "optimized_carbon_kg": 318.8579899490327,
+    "carbon_saved_kg": -4.191793592512624,
+    "percent_reduction": -1.3321397852863988,
     "optimization_success": false
   },
   "improvement_over_cp1": {
-    "cp1_carbon_kg": 340.92759804390505,
-    "cp2_carbon_kg": 320.5629023275613,
-    "additional_savings_kg": 20.36469571634376,
-    "additional_savings_percent": 5.973319799625366
+    "cp1_carbon_kg": 346.7879482217018,
+    "cp2_carbon_kg": 318.8579899490327,
+    "additional_savings_kg": 27.929958272669126,
+    "additional_savings_percent": 8.053901070060682
   },
   "monitoring_state": {
-    "timestamp": "2026-03-19T02:41:31.902469",
+    "timestamp": "2026-04-12T04:12:30.004791",
     "active_jobs": {
       "total": 0,
       "waiting": 0,

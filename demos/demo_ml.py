@@ -3,7 +3,11 @@ Enhanced Demo Script with ML Predictions
 Shows both rule-based and ML-based scheduling recommendations
 """
 
-from scheduler import SmartScheduler, TrainingJob
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'core'))
+
+# Note: scheduler.py doesn't exist, so we'll skip it for now
 from ml_predictor import SchedulingPredictor
 from datetime import datetime, timedelta
 import json
@@ -177,7 +181,7 @@ def run_ml_enhanced_demo():
         "ml_model_metrics": predictor.metrics
     }
     
-    with open('/home/claude/ml_enhanced_results.json', 'w') as f:
+    with open('../results/checkpoint2_results.json', 'w') as f:
         json.dump(results, f, indent=2)
     
     print(f"\n📁 Results saved to: ml_enhanced_results.json")
