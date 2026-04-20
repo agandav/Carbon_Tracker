@@ -1,6 +1,6 @@
 ## Authorship and Code Attribution
 
-### Code Written by Me (Ashutosh Gandavaram)
+### Code Written by Me
 
 **Test Scripts:**
 - `test_checkpoint1.py` - Lines 1-93 (100% original)
