@@ -1,0 +1,7 @@
+{
+  "checkpoint": 1,
+  "strategy": "greedy_immediate",
+  "total_carbon_kg": 1.04,
+  "num_jobs": 2,
+  "current_intensity": 268.73
+}

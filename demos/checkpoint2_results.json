@@ -7,7 +7,7 @@
     "train_model": 0,
     "process_data": 3
   },
-  "optimization_time_seconds": 0.334,
+  "optimization_time_seconds": 0.296,
   "improvement_over_cp1": {
     "carbon_saved_kg": 0.47,
     "percent_improvement": 44.9
