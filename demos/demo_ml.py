@@ -5,188 +5,213 @@ Shows both rule-based and ML-based scheduling recommendations
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'core'))
-
-# Note: scheduler.py doesn't exist, so we'll skip it for now
-from ml_predictor import SchedulingPredictor
-from datetime import datetime, timedelta
 import json
+import numpy as np
+from datetime import datetime
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, 'core'))
+
+from ml_predictor import SchedulingPredictor
+from batch_optimizer import BatchJobOptimizer
+
+np.random.seed(42)
+
+
+def generate_forecast():
+    """24-hour carbon forecast (same as test scripts for consistency)"""
+    forecast = []
+    for hour in range(24):
+        base = 350
+        if 6 <= hour <= 9 or 17 <= hour <= 20:
+            intensity = base + np.random.uniform(150, 200)
+        elif 22 <= hour or hour <= 5:
+            intensity = base + np.random.uniform(-100, -50)
+        else:
+            intensity = base + np.random.uniform(-50, 50)
+        forecast.append({
+            'datetime': f'2026-04-12T{hour:02d}:00:00Z',
+            'value': round(intensity, 2)
+        })
+    return forecast
+
 
 def run_ml_enhanced_demo():
-    """Run demo with ML predictions"""
-    
+    """Run demo with ML predictions alongside batch optimization"""
+
     print("=" * 80)
     print("SmartScheduler for Green AI - ML-Enhanced Demo")
     print("=" * 80)
-    print()
-    
-    # Load trained ML model
-    print("🤖 Loading ML Prediction Model...")
+
+    # Load or train ML model
+    print("\n Loading ML Prediction Model...")
+    predictor = SchedulingPredictor()
+    model_path = os.path.join(PROJECT_ROOT, 'ml_scheduler_model.pkl')
     try:
-        predictor = SchedulingPredictor()
-        predictor.load_model('/home/claude/ml_scheduler_model.pkl')
-        print("   ✓ ML model loaded successfully")
-        print(f"   ✓ Carbon Model R² Score: {predictor.metrics['carbon_model']['r2']:.4f}")
-        print(f"   ✓ Delay Model R² Score: {predictor.metrics['delay_model']['r2']:.4f}")
-    except Exception as e:
-        print(f"   ⚠ Could not load model: {e}")
-        print("   Training new model...")
-        predictor = SchedulingPredictor()
+        predictor.load_model(model_path)
+        print(f"   Carbon Model R2: {predictor.metrics['carbon_model']['r2']:.4f}")
+        print(f"   Delay  Model R2: {predictor.metrics['delay_model']['r2']:.4f}")
+    except Exception:
+        print("   Model not found - training now...")
         predictor.train(n_samples=1000)
-        predictor.save_model('/home/claude/ml_scheduler_model.pkl')
-    
-    print()
-    
-    # Initialize rule-based scheduler
-    scheduler = SmartScheduler(region="US-MIDW-MISO")
-    print(f"✓ Initialized rule-based scheduler for region: {scheduler.region}")
-    print()
-    
-    # Create sample jobs
+        predictor.save_model(model_path)
+
+    # Build forecast and optimizer
+    forecast = generate_forecast()
+    forecast_values = [f['value'] for f in forecast]
+    current_intensity = forecast_values[6]  # Jobs arrive at hour 6
+
+    print(f"\n Current carbon intensity (6 AM): {current_intensity:.2f} gCO2/kWh")
+    print(f" 24-hour range: {min(forecast_values):.2f} - {max(forecast_values):.2f} gCO2/kWh")
+
+    # Define jobs (same as test scripts)
     jobs = [
-        TrainingJob(
-            job_id="job_001",
-            name="Large Language Model Fine-tuning",
-            estimated_duration_hours=8.0,
-            estimated_kwh=450.0,
-            priority="medium",
-            deadline=datetime.now() + timedelta(days=2)
-        ),
-        TrainingJob(
-            job_id="job_002",
-            name="Computer Vision Model Training",
-            estimated_duration_hours=4.0,
-            estimated_kwh=180.0,
-            priority="low",
-            deadline=datetime.now() + timedelta(days=3)
-        ),
-        TrainingJob(
-            job_id="job_003",
-            name="Recommendation System Retraining",
-            estimated_duration_hours=6.0,
-            estimated_kwh=320.0,
-            priority="high",
-            deadline=datetime.now() + timedelta(hours=24)
-        ),
+        {
+            'id': 'train_model',
+            'duration_hours': 5.0,
+            'power_watts': 300,
+            'deadline_hours': 24,
+            'energy_kwh': (300 * 5.0) / 1000,
+            'priority': 1,
+        },
+        {
+            'id': 'process_data',
+            'duration_hours': 3.0,
+            'power_watts': 200,
+            'deadline_hours': 24,
+            'energy_kwh': (200 * 3.0) / 1000,
+            'priority': 1,
+        },
     ]
-    
-    # Add jobs
-    for job in jobs:
-        scheduler.add_job(job)
-    print(f"✓ Added {len(jobs)} training jobs to queue")
-    print()
-    
-    # Get rule-based recommendations
-    print("📊 SCHEDULING ANALYSIS (Rule-Based + ML-Enhanced)")
+
+    print(f"\n Jobs: {len(jobs)}")
+    for j in jobs:
+        print(f"   {j['id']}: {j['duration_hours']}h, {j['power_watts']}W, "
+              f"deadline {j['deadline_hours']}h")
+
+    # ------------------------------------------------------------------ #
+    # BASELINE: greedy immediate execution at hour 6
+    # ------------------------------------------------------------------ #
+    print("\n" + "-" * 80)
+    print(" BASELINE (Greedy - immediate execution at hour 6)")
     print("-" * 80)
-    
-    rule_based_recs = scheduler.schedule_all_jobs()
+
+    forecast_arr = np.array(forecast_values)
+    ARRIVAL = 6
+    baseline_carbon = 0.0
+
+    for job in jobs:
+        start = ARRIVAL
+        dur = int(job['duration_hours'])
+        energy = job['energy_kwh']
+        avg_intensity = float(np.mean(forecast_arr[start:start + dur]))
+        carbon = (avg_intensity * energy) / 1000
+        baseline_carbon += carbon
+        print(f"   {job['id']:<20} start={start:02d}h  "
+              f"avg_intensity={avg_intensity:.1f}  carbon={carbon:.4f} kg CO2")
+
+    print(f"\n   Baseline total: {baseline_carbon:.4f} kg CO2")
+
+    # ------------------------------------------------------------------ #
+    # OPTIMIZED: batch optimizer
+    # ------------------------------------------------------------------ #
+    print("\n" + "-" * 80)
+    print(" OPTIMIZED (Batch optimization)")
+    print("-" * 80)
+
+    optimizer = BatchJobOptimizer(forecast_values)
+    opt_results = optimizer.optimize_batch(jobs)
+
+    schedule = {
+        jobs[item['job_index']]['id']: float(item['optimized_start_hour'])
+        for item in opt_results['job_schedule']
+    }
+
+    optimized_carbon = 0.0
+    for job_id, start_time in schedule.items():
+        job = next(j for j in jobs if j['id'] == job_id)
+        start = int(np.round(start_time))
+        dur = int(job['duration_hours'])
+        energy = job['energy_kwh']
+        avg_intensity = float(np.mean(forecast_arr[start:start + dur]))
+        carbon = (avg_intensity * energy) / 1000
+        optimized_carbon += carbon
+        print(f"   {job_id:<20} start={start:02d}h  "
+              f"avg_intensity={avg_intensity:.1f}  carbon={carbon:.4f} kg CO2")
+
+    carbon_saved = baseline_carbon - optimized_carbon
+    pct_saved = (carbon_saved / baseline_carbon) * 100
+    print(f"\n   Optimized total: {optimized_carbon:.4f} kg CO2")
+    print(f"   Saved:           {carbon_saved:.4f} kg CO2 ({pct_saved:.1f}%)")
+
+    # ------------------------------------------------------------------ #
+    # ML PREDICTIONS
+    # ------------------------------------------------------------------ #
+    print("\n" + "-" * 80)
+    print(" ML MODEL PREDICTIONS")
+    print("-" * 80)
+
+    current_hour = ARRIVAL
     ml_results = []
-    
-    for i, (rec, job) in enumerate(zip(rule_based_recs, jobs), 1):
-        print(f"\n{'='*80}")
-        print(f"🔷 Job {i}: {rec['job_name']}")
-        print(f"{'='*80}")
-        
-        # Rule-based results
-        print(f"\n📋 RULE-BASED ANALYSIS:")
-        print(f"   Current Carbon Intensity: {rec['current_intensity']} gCO2/kWh")
-        print(f"   Optimal Carbon Intensity: {rec['optimal_intensity']} gCO2/kWh")
-        print(f"   Recommended Delay: {rec['delay_hours']:.1f} hours")
-        print(f"   Carbon Savings: {rec['carbon_emissions']['saved_kg']} kg CO2")
-        print(f"   Percent Reduction: {rec['carbon_emissions']['percent_reduction']}%")
-        
-        # ML prediction
-        current_hour = datetime.now().hour
-        job_features = {
-            'duration_hours': job.estimated_duration_hours,
-            'energy_kwh': job.estimated_kwh,
-            'priority': {'high': 2, 'medium': 1, 'low': 0}[job.priority],
+
+    for job in jobs:
+        features = {
+            'duration_hours': job['duration_hours'],
+            'energy_kwh': job['energy_kwh'],
+            'priority': job['priority'],
             'start_hour': current_hour,
             'day_of_week': datetime.now().weekday(),
             'month': datetime.now().month,
-            'current_intensity': rec['current_intensity'],
+            'current_intensity': current_intensity,
             'is_weekend': 1 if datetime.now().weekday() >= 5 else 0,
-            'is_daytime': 1 if 8 <= current_hour <= 18 else 0
+            'is_daytime': 1 if 8 <= current_hour <= 18 else 0,
         }
-        
-        ml_pred = predictor.predict(job_features)
-        
-        print(f"\n🤖 ML MODEL PREDICTION:")
-        print(f"   Predicted Carbon Savings: {ml_pred['predicted_carbon_saved_kg']:.2f} kg CO2")
-        print(f"   Predicted Optimal Delay: {ml_pred['predicted_optimal_delay_hours']:.1f} hours")
-        print(f"   Confidence Level: {ml_pred['confidence_carbon']}")
-        
-        # Comparison
-        rule_carbon = rec['carbon_emissions']['saved_kg']
-        ml_carbon = ml_pred['predicted_carbon_saved_kg']
-        diff = abs(rule_carbon - ml_carbon)
-        accuracy = (1 - diff / rule_carbon) * 100 if rule_carbon > 0 else 0
-        
-        print(f"\n📊 MODEL COMPARISON:")
-        print(f"   Rule-based carbon savings: {rule_carbon:.2f} kg CO2")
-        print(f"   ML predicted savings: {ml_carbon:.2f} kg CO2")
-        print(f"   Prediction accuracy: {accuracy:.1f}%")
-        print(f"   {'✓ ML prediction within acceptable range' if accuracy > 80 else '⚠ Significant variance detected'}")
-        
-        ml_results.append({
-            'job_id': job.job_id,
-            'rule_based': rec,
-            'ml_prediction': ml_pred,
-            'accuracy': accuracy
-        })
-    
-    # Aggregate metrics
+        pred = predictor.predict(features)
+        ml_results.append({'job_id': job['id'], 'prediction': pred})
+
+        print(f"\n   Job: {job['id']}")
+        print(f"     Predicted carbon saved : "
+              f"{pred['predicted_carbon_saved_kg']:.4f} kg CO2")
+        print(f"     Predicted optimal delay: "
+              f"{pred['predicted_optimal_delay_hours']:.1f} h")
+        print(f"     Confidence             : {pred['confidence_carbon']}")
+
+    # ------------------------------------------------------------------ #
+    # SUMMARY
+    # ------------------------------------------------------------------ #
     print("\n" + "=" * 80)
-    print("AGGREGATE IMPACT METRICS")
+    print(" SUMMARY")
     print("=" * 80)
-    
-    metrics = scheduler.get_metrics_summary(rule_based_recs)
-    
-    print(f"\n📈 Total Jobs Analyzed: {metrics['total_jobs']}")
-    print(f"\n🌍 ENVIRONMENTAL IMPACT (Rule-Based):")
-    print(f"   • Total Carbon Saved: {metrics['total_carbon_saved_kg']} kg CO2")
-    print(f"   • Total Water Saved: {metrics['total_water_saved_liters']} liters")
-    print(f"   • Average Reduction: {metrics['avg_carbon_reduction_percent']}%")
-    
-    # ML aggregate
-    ml_total_carbon = sum(r['ml_prediction']['predicted_carbon_saved_kg'] for r in ml_results)
-    ml_avg_accuracy = sum(r['accuracy'] for r in ml_results) / len(ml_results)
-    
-    print(f"\n🤖 ML MODEL PERFORMANCE:")
-    print(f"   • Predicted Total Carbon: {ml_total_carbon:.2f} kg CO2")
-    print(f"   • Average Prediction Accuracy: {ml_avg_accuracy:.1f}%")
-    print(f"   • Model Status: {'Production Ready ✓' if ml_avg_accuracy > 80 else 'Needs Tuning ⚠'}")
-    
-    print(f"\n🌳 EQUIVALENT TO:")
-    print(f"   • Taking {metrics['equivalent_metrics']['cars_off_road_days']} car-days off the road")
-    print(f"   • Planting {metrics['equivalent_metrics']['trees_planted_equivalent']} trees")
-    
-    print(f"\n💵 COST SAVINGS: ${metrics['total_cost_saved_usd']}")
-    
-    print("\n" + "=" * 80)
-    print("✓ ML-Enhanced Demo completed successfully!")
-    print("=" * 80)
-    
+    print(f"   Baseline carbon  : {baseline_carbon:.4f} kg CO2")
+    print(f"   Optimized carbon : {optimized_carbon:.4f} kg CO2")
+    print(f"   Reduction        : {pct_saved:.1f}%")
+    print(f"   Optimizer time   : {optimizer.optimization_time:.3f} s")
+
     # Save results
-    results = {
-        "timestamp": datetime.now().isoformat(),
-        "rule_based_recommendations": rule_based_recs,
-        "ml_results": [{
-            'job_id': r['job_id'],
-            'ml_prediction': r['ml_prediction'],
-            'accuracy': r['accuracy']
-        } for r in ml_results],
-        "aggregate_metrics": metrics,
-        "ml_model_metrics": predictor.metrics
+    results_dir = os.path.join(PROJECT_ROOT, 'results')
+    os.makedirs(results_dir, exist_ok=True)
+    output = {
+        'timestamp': datetime.now().isoformat(),
+        'baseline_carbon_kg': round(baseline_carbon, 4),
+        'optimized_carbon_kg': round(optimized_carbon, 4),
+        'carbon_saved_kg': round(carbon_saved, 4),
+        'percent_reduction': round(pct_saved, 1),
+        'schedule': {k: int(v) for k, v in schedule.items()},
+        'ml_predictions': [
+            {'job_id': r['job_id'],
+             'predicted_carbon_saved_kg': r['prediction']['predicted_carbon_saved_kg'],
+             'predicted_delay_hours': r['prediction']['predicted_optimal_delay_hours']}
+            for r in ml_results
+        ],
     }
-    
-    with open('../results/checkpoint2_results.json', 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    print(f"\n📁 Results saved to: ml_enhanced_results.json")
-    
-    return results
+    out_path = os.path.join(results_dir, 'ml_enhanced_results.json')
+    with open(out_path, 'w') as f:
+        json.dump(output, f, indent=2)
+    print(f"\n   Results saved to: {out_path}")
+    print("=" * 80)
+
+    return output
+
 
 if __name__ == "__main__":
-    results = run_ml_enhanced_demo()
+    run_ml_enhanced_demo()

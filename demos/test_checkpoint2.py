@@ -60,7 +60,7 @@ def test_checkpoint2():
     
     print(f"\n Jobs to Schedule: {len(jobs)}")
     for job in jobs:
-        print(f"   • {job['id']}: {job['duration_hours']}h, {job['power_watts']}W, deadline {job['deadline_hours']}h")
+        print(f"   - {job['id']}: {job['duration_hours']}h, {job['power_watts']}W, deadline {job['deadline_hours']}h")
     
     # Initialize optimizer and monitor
     optimizer = BatchJobOptimizer([f['value'] for f in forecast])
@@ -102,7 +102,7 @@ def test_checkpoint2():
         carbon_kg = (avg_intensity * energy_kwh) / 1000
         total_carbon_cp2 += carbon_kg
         
-        print(f"   {job_id:<25} → Hour {start_hour}: {carbon_kg:.2f} kg CO2")
+        print(f"   {job_id:<25}   Hour {start_hour}: {carbon_kg:.2f} kg CO2")
     
     print(f"\n{'=' * 60}")
     print(f"CHECKPOINT 2 TOTAL CARBON EMISSIONS: {total_carbon_cp2:.2f} kg CO2")

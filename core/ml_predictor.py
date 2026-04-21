@@ -145,9 +145,9 @@ class SchedulingPredictor:
         carbon_mae = mean_absolute_error(y_carbon_test, carbon_pred)
         carbon_r2 = r2_score(y_carbon_test, carbon_pred)
         
-        print(f"   ✓ MSE: {carbon_mse:.2f}")
-        print(f"   ✓ MAE: {carbon_mae:.2f} kg CO2")
-        print(f"   ✓ R² Score: {carbon_r2:.4f}")
+        print(f"   [OK] MSE: {carbon_mse:.2f}")
+        print(f"   [OK] MAE: {carbon_mae:.2f} kg CO2")
+        print(f"   [OK] R2 Score: {carbon_r2:.4f}")
         
         # Train delay prediction model
         print("\n[2/2] Training Optimal Delay Predictor...")
@@ -158,15 +158,15 @@ class SchedulingPredictor:
         delay_mae = mean_absolute_error(y_delay_test, delay_pred)
         delay_r2 = r2_score(y_delay_test, delay_pred)
         
-        print(f"   ✓ MSE: {delay_mse:.2f}")
-        print(f"   ✓ MAE: {delay_mae:.2f} hours")
-        print(f"   ✓ R² Score: {delay_r2:.4f}")
+        print(f"   [OK] MSE: {delay_mse:.2f}")
+        print(f"   [OK] MAE: {delay_mae:.2f} hours")
+        print(f"   [OK] R2 Score: {delay_r2:.4f}")
         
         # Feature importance
-        print("\n📊 Feature Importance (Carbon Savings):")
+        print("\n[CHART] Feature Importance (Carbon Savings):")
         importances = self.carbon_model.feature_importances_
         for name, imp in sorted(zip(feature_cols, importances), key=lambda x: x[1], reverse=True):
-            print(f"   • {name}: {imp:.3f}")
+            print(f"   - {name}: {imp:.3f}")
         
         self.is_trained = True
         
@@ -185,7 +185,7 @@ class SchedulingPredictor:
             'feature_importance': {name: float(imp) for name, imp in zip(feature_cols, importances)}
         }
         
-        print("\n✓ Training complete!")
+        print("\n[OK] Training complete!")
         print("="*60)
         
         return self.metrics
@@ -232,7 +232,7 @@ class SchedulingPredictor:
         with open(filepath, 'wb') as f:
             pickle.dump(model_data, f)
         
-        print(f"✓ Model saved to {filepath}")
+        print(f"[OK] Model saved to {filepath}")
     
     def load_model(self, filepath='ml_scheduler_model.pkl'):
         """Load trained model from disk"""
@@ -245,7 +245,7 @@ class SchedulingPredictor:
         self.metrics = model_data['metrics']
         self.is_trained = True
         
-        print(f"✓ Model loaded from {filepath}")
+        print(f"[OK] Model loaded from {filepath}")
 
 
 def train_and_evaluate():
@@ -262,9 +262,9 @@ def train_and_evaluate():
     with open('/home/claude/ml_model_metrics.json', 'w') as f:
         json.dump(metrics, f, indent=2)
     
-    print("\n📁 Saved:")
-    print("   • ml_scheduler_model.pkl (trained model)")
-    print("   • ml_model_metrics.json (evaluation metrics)")
+    print("\n[FOLDER] Saved:")
+    print("   - ml_scheduler_model.pkl (trained model)")
+    print("   - ml_model_metrics.json (evaluation metrics)")
     
     # Test predictions
     print("\n" + "="*60)
@@ -285,19 +285,19 @@ def train_and_evaluate():
     
     prediction = predictor.predict(test_job)
     
-    print("\n📋 Test Job:")
+    print("\n[LIST] Test Job:")
     print(f"   Duration: {test_job['duration_hours']} hours")
     print(f"   Energy: {test_job['energy_kwh']} kWh")
     print(f"   Current time: {test_job['start_hour']}:00 (8 PM)")
     print(f"   Current carbon intensity: {test_job['current_intensity']} gCO2/kWh")
     
-    print("\n🤖 ML Predictions:")
+    print("\n[AI] ML Predictions:")
     print(f"   Predicted carbon savings: {prediction['predicted_carbon_saved_kg']:.2f} kg CO2")
     print(f"   Predicted optimal delay: {prediction['predicted_optimal_delay_hours']:.1f} hours")
     print(f"   Confidence (carbon): {prediction['confidence_carbon']}")
     print(f"   Confidence (delay): {prediction['confidence_delay']}")
     
-    print("\n✓ Prediction test complete!")
+    print("\n[OK] Prediction test complete!")
     print("="*60)
     
     return predictor, metrics

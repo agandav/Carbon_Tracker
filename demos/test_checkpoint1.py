@@ -53,7 +53,7 @@ def test_checkpoint1():
     
     print(f"\n Jobs to Schedule: {len(jobs)}")
     for job in jobs:
-        print(f"   • {job['id']}: {job['duration']}h, {job['power']}W, deadline {job['deadline']}h")
+        print(f"   - {job['id']}: {job['duration']}h, {job['power']}W, deadline {job['deadline']}h")
     
     # CHECKPOINT 1 APPROACH: Jobs arrive at hour 6 (business hours), run immediately (greedy)
     # This represents naive scheduling that doesn't consider carbon
@@ -82,7 +82,7 @@ def test_checkpoint1():
         carbon_kg = (avg_intensity * energy_kwh) / 1000
         total_carbon_cp1 += carbon_kg
         
-        print(f"   {job['id']:<25} → Hour {start_hour}: {carbon_kg:.2f} kg CO2")
+        print(f"   {job['id']:<25}   Hour {start_hour}: {carbon_kg:.2f} kg CO2")
     
     print(f"\n{'=' * 60}")
     print(f"CHECKPOINT 1 TOTAL CARBON EMISSIONS: {total_carbon_cp1:.2f} kg CO2")

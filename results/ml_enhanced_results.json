@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-04-20T23:36:49.558412",
+  "baseline_carbon_kg": 1.0394,
+  "optimized_carbon_kg": 0.573,
+  "carbon_saved_kg": 0.4664,
+  "percent_reduction": 44.9,
+  "schedule": {
+    "train_model": 0,
+    "process_data": 3
+  },
+  "ml_predictions": [
+    {
+      "job_id": "train_model",
+      "predicted_carbon_saved_kg": 14.027896778455425,
+      "predicted_delay_hours": 7.683663420933175
+    },
+    {
+      "job_id": "process_data",
+      "predicted_carbon_saved_kg": 14.027896778455421,
+      "predicted_delay_hours": 7.626901516171269
+    }
+  ]
+}
