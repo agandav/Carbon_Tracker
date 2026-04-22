@@ -34,11 +34,4 @@ All external dependencies are listed in `requirements.txt`:
 
 No code was directly copied from external repositories. All implementations use standard library APIs as documented.
 
-### LLM Assistance
-
-Claude (Anthropic) was used for:
-- Debugging optimization algorithms
-- Code structure suggestions
-- Test script generation
-
 All algorithmic decisions and implementations were made by me.
