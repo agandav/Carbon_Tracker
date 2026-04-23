@@ -34,11 +34,11 @@ class BatchJobOptimizer:
         
         Args:
             jobs: List of job dictionaries with:
-                - duration_hours: float
-                - energy_kwh: float
-                - priority: int (0 = low, 1 = med, 2 = high)
-                - deadline_hours: float (hours from now)
-                - dependencies: List[int] (job indices that must finish first)
+                - duration_hours
+                - energy_kwh
+                - priority
+                - deadline_hours
+                - dependencies
         
         Returns:
             Optimization results with start times and carbon savings

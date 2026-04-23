@@ -1,8 +1,5 @@
 """
-ML Performance Visualization for Google Colab
-Run this entire script in a single Colab cell to generate Slide 7 graphs
-
-NO EXTERNAL FILES NEEDED - All data embedded from actual run results
+ML Performance Visualization
 """
 
 import matplotlib.pyplot as plt
@@ -44,18 +41,11 @@ job_results = {
     'optimized_carbon':  [0.41, 0.15],   # batch optimizer result
 }
 
-
-# ============================================================================
-# VISUALIZATION FUNCTIONS
-# ============================================================================
-
 def create_ml_performance_dashboard():
     """4-panel ML performance dashboard"""
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(14, 10))
 
-    # ------------------------------------------------------------------ #
-    # PANEL 1: R2 Scores
-    # ------------------------------------------------------------------ #
+    
     models = ['Carbon\nSavings', 'Optimal\nDelay']
     r2_scores = [ml_metrics['carbon_model']['r2'], ml_metrics['delay_model']['r2']]
     colors_r2 = ['#06A77D', '#2E86AB']
@@ -79,9 +69,7 @@ def create_ml_performance_dashboard():
         ax1.text(bar.get_x() + bar.get_width() / 2., bar.get_height() / 2,
                  status, ha='center', fontsize=10, fontweight='bold', color='white')
 
-    # ------------------------------------------------------------------ #
-    # PANEL 2: MAE
-    # ------------------------------------------------------------------ #
+    
     mae_carbon = ml_metrics['carbon_model']['mae']
     mae_delay = ml_metrics['delay_model']['mae']
 
@@ -106,9 +94,6 @@ def create_ml_performance_dashboard():
     ax2_twin.text(1, mae_delay / 2, f'\u00b1{mae_delay:.1f}h',
                   ha='center', va='center', fontsize=12, fontweight='bold', color='white')
 
-    # ------------------------------------------------------------------ #
-    # PANEL 3: Feature Importance (Top 5)
-    # ------------------------------------------------------------------ #
     sorted_feats = sorted(ml_metrics['feature_importance'].items(),
                           key=lambda x: x[1], reverse=True)[:5]
     feat_names = [f[0].replace('_', ' ').title() for f in sorted_feats]
@@ -129,9 +114,7 @@ def create_ml_performance_dashboard():
         ax3.text(val + 0.005, i, f'{val:.3f} ({val * 100:.1f}%)',
                  va='center', fontsize=10, fontweight='bold')
 
-    # ------------------------------------------------------------------ #
-    # PANEL 4: Baseline vs Optimized carbon (actual test results)
-    # ------------------------------------------------------------------ #
+    
     jobs = job_results['job_names']
     baseline = job_results['baseline_carbon']
     optimized = job_results['optimized_carbon']
@@ -171,7 +154,6 @@ def create_ml_performance_dashboard():
              transform=ax4.transAxes, ha='center', fontsize=10, fontweight='bold',
              bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.4))
 
-    # ------------------------------------------------------------------ #
     fig.suptitle('Machine Learning Model Performance Dashboard',
                  fontsize=18, fontweight='bold', y=0.98, color='#1A2238')
     fig.text(0.5, 0.01,
@@ -201,10 +183,6 @@ def create_r2_scores_only():
     plt.tight_layout()
     return fig
 
-
-# ============================================================================
-# MAIN
-# ============================================================================
 
 if __name__ == "__main__":
     print("=" * 70)

@@ -140,25 +140,20 @@ class RealTimeMonitor:
         state = self.get_dashboard_state()
         
         report = f"""
-        +=========================================================+
-        |        SMARTSCHEDULER REAL-TIME MONITORING REPORT       |
-        +=========================================================+
-        | Timestamp: {state['timestamp'][:19]}                    |
-        +=========================================================+
-        | ACTIVE JOBS                                             |
-        |   - Total Active: {state['active_jobs']['total']}                                     |
-        |   - Waiting: {state['active_jobs']['waiting']}                                         |
-        |   - Running: {state['active_jobs']['running']}                                         |
-        |                                                         |
-        | COMPLETED JOBS: {state['completed_jobs']}                                         |
-        +=========================================================+
-        | CUMULATIVE ENVIRONMENTAL IMPACT                         |
-        |   - Carbon Saved: {state['cumulative_savings']['total_carbon_saved_kg']:.2f} kg CO2                  |
-        |   - Water Saved: {state['cumulative_savings']['total_water_saved_liters']:.2f} liters                |
-        |   - Cost Saved: ${state['cumulative_savings']['total_cost_saved_usd']:.2f}                           |
-        |   - Jobs Optimized: {state['cumulative_savings']['jobs_optimized']}                                  |
-        +=========================================================+
-        | RECENT ALERTS: {len(state['recent_alerts'])}                                        |
-        +=========================================================+
+        SmartScheduler Real-Time Monitor Report
+        Timestamp: {state['timestamp'][:19]}                    
+        Active Jobs:
+         - Total Active: {state['active_jobs']['total']}                                    
+         - Waiting: {state['active_jobs']['waiting']}                                        
+         - Running: {state['active_jobs']['running']}                                        
+        COMPLETED JOBS: {state['completed_jobs']}                                         
+        
+        Cumulative Savings:                     
+        - Carbon Saved: {state['cumulative_savings']['total_carbon_saved_kg']:.2f} kg CO2                  
+        - Water Saved: {state['cumulative_savings']['total_water_saved_liters']:.2f} liters                
+        - Cost Saved: ${state['cumulative_savings']['total_cost_saved_usd']:.2f}                          
+        - Jobs Optimized: {state['cumulative_savings']['jobs_optimized']}                                  
+        RECENT ALERTS: {len(state['recent_alerts'])}                                        
+        
         """
         return report

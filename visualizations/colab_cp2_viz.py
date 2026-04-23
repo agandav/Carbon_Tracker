@@ -1,8 +1,5 @@
 """
-Checkpoint 2 Visualization for Google Colab
-Complete standalone script - NO external files needed!
-
-Run this entire script in a single Colab cell to generate Checkpoint 2 graphs
+Checkpoint 2 Visualization
 """
 
 import matplotlib.pyplot as plt
@@ -46,9 +43,6 @@ def create_checkpoint2_comparison():
     fig = plt.figure(figsize=(16, 10))
     gs = fig.add_gridspec(2, 2, hspace=0.35, wspace=0.3)
 
-    # ------------------------------------------------------------------ #
-    # PANEL 1: CP1 vs CP2 Carbon Bar Chart
-    # ------------------------------------------------------------------ #
     ax1 = fig.add_subplot(gs[0, 0])
 
     approaches = ['Checkpoint 1\n(Greedy)', 'Checkpoint 2\n(Batch Opt.)']
@@ -181,7 +175,7 @@ def create_cp_comparison_only():
 
 if __name__ == "__main__":
     print("=" * 70)
-    print("CHECKPOINT 2 VISUALIZATION GENERATOR")
+    print("Checkpoint 2 Visualization")
     print("=" * 70)
 
     print("\n Creating 2-panel dashboard")
@@ -191,7 +185,7 @@ if __name__ == "__main__":
     print("   Saved: checkpoint2_comparison.png")
     plt.show()
 
-    print("\n Creating comparison-only chart...")
+    print("\n Creating comparison-only chart")
     fig_comp = create_cp_comparison_only()
     plt.savefig('cp1_vs_cp2.png', dpi=300, bbox_inches='tight', facecolor='white')
     print("   Saved: cp1_vs_cp2.png")

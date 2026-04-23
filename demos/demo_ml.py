@@ -37,7 +37,6 @@ def generate_forecast():
 
 
 def run_ml_enhanced_demo():
-    """Run demo with ML predictions alongside batch optimization"""
 
     print("=" * 80)
     print("SmartScheduler for Green AI - Demo")
