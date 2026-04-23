@@ -40,5 +40,4 @@ After running scripts, outputs are saved in results/:
 - checkpoint1_results.json
 - checkpoint2_results.json
 - ml_enhanced_results.json
-- ml_scheduler_model.pkl (trained ML model checkpoint)
 
