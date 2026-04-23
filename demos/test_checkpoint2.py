@@ -17,7 +17,7 @@ CP2_RESULTS_PATH = os.path.join(RESULTS_DIR, 'checkpoint2_results.json')
 from core.batch_optimizer import BatchJobOptimizer
 from core.realtime_monitor import RealTimeMonitor
 
-np.random.seed(42)  # FIXED SEED FOR CONSISTENT RESULTS
+np.random.seed(42) # For reproducibility
 
 def generate_forecast():
     """24-hour carbon forecast"""
@@ -42,15 +42,15 @@ def test_checkpoint2():
     print("CHECKPOINT 2: BATCH OPTIMIZATION + REAL-TIME MONITORING")
     print("=" * 60)
     
-    # Get forecast
+    # Get a forecast
     forecast = generate_forecast()
     current_intensity = forecast[0]['value']
     
     print(f"\n Current Carbon Intensity: {current_intensity:.2f} gCO2/kWh")
     print(f"24-hour Forecast Range: {min(f['value'] for f in forecast):.2f} - {max(f['value'] for f in forecast):.2f} gCO2/kWh")
     
-    # Define 2 jobs with flexible deadlines - realistic for daily batch processing
-    # Total: 8 hours of work, 24 hour window - can easily avoid all peaks
+    # Define 2 jobs with flexible deadlines, realistic for daily batch processing
+    # Total: 8 hours of work, 24 hour window and can avoid all peaks
     jobs = [
         {'id': 'train_model', 'duration_hours': 5.0, 'power_watts': 300, 'deadline_hours': 24, 
          'energy_kwh': (300 * 5.0) / 1000, 'priority': 1},
@@ -62,12 +62,12 @@ def test_checkpoint2():
     for job in jobs:
         print(f"   - {job['id']}: {job['duration_hours']}h, {job['power_watts']}W, deadline {job['deadline_hours']}h")
     
-    # Initialize optimizer and monitor
+    # Initializes optimizer and monitor
     optimizer = BatchJobOptimizer([f['value'] for f in forecast])
     monitor = RealTimeMonitor()
     
     # Optimize
-    print("\n CHECKPOINT 2 STRATEGY: Batch Optimization (scipy SLSQP)")
+    print("\n CHECKPOINT 2 STRATEGY: Batch Optimization with Real-Time Monitoring")
     print("-" * 60)
     
     import time
@@ -75,13 +75,13 @@ def test_checkpoint2():
     optimization_results = optimizer.optimize_batch(jobs)
     opt_time = time.time() - start_time
     
-    # Build simple job_id -> start_hour schedule from optimizer output
+    # Build job_id
     schedule = {
         jobs[item['job_index']]['id']: float(item['optimized_start_hour'])
         for item in optimization_results['job_schedule']
     }
     
-    # Calculate total carbon using SAME method as optimizer (simple averaging)
+    # Calculate total carbon using the same method as optimizer (simple averaging)
     total_carbon_cp2 = 0
     
     for job_id, start_time in schedule.items():
@@ -90,7 +90,7 @@ def test_checkpoint2():
         duration = int(job['duration_hours'])
         energy_kwh = (job['power_watts'] * job['duration_hours']) / 1000
         
-        # Simple average over integer hours
+        # Simple average over integer form hours
         forecast_array = np.array([f['value'] for f in forecast])
         intensity_sum = 0
         for h_offset in range(duration):

@@ -19,7 +19,7 @@ np.random.seed(42)
 
 
 def generate_forecast():
-    """24-hour carbon forecast (same as test scripts for consistency)"""
+    """24-hour carbon forecast (same logic as test scripts)"""
     forecast = []
     for hour in range(24):
         base = 350
@@ -40,11 +40,10 @@ def run_ml_enhanced_demo():
     """Run demo with ML predictions alongside batch optimization"""
 
     print("=" * 80)
-    print("SmartScheduler for Green AI - ML-Enhanced Demo")
+    print("SmartScheduler for Green AI - Demo")
     print("=" * 80)
 
     # Load or train ML model
-    print("\n Loading ML Prediction Model...")
     predictor = SchedulingPredictor()
     model_path = os.path.join(PROJECT_ROOT, 'ml_scheduler_model.pkl')
     try:
@@ -89,9 +88,8 @@ def run_ml_enhanced_demo():
         print(f"   {j['id']}: {j['duration_hours']}h, {j['power_watts']}W, "
               f"deadline {j['deadline_hours']}h")
 
-    # ------------------------------------------------------------------ #
-    # BASELINE: greedy immediate execution at hour 6
-    # ------------------------------------------------------------------ #
+    
+    # Greedy immediate execution at hour 6
     print("\n" + "-" * 80)
     print(" BASELINE (Greedy - immediate execution at hour 6)")
     print("-" * 80)
@@ -112,9 +110,7 @@ def run_ml_enhanced_demo():
 
     print(f"\n   Baseline total: {baseline_carbon:.4f} kg CO2")
 
-    # ------------------------------------------------------------------ #
-    # OPTIMIZED: batch optimizer
-    # ------------------------------------------------------------------ #
+    # Batch optimizer
     print("\n" + "-" * 80)
     print(" OPTIMIZED (Batch optimization)")
     print("-" * 80)
@@ -144,9 +140,8 @@ def run_ml_enhanced_demo():
     print(f"\n   Optimized total: {optimized_carbon:.4f} kg CO2")
     print(f"   Saved:           {carbon_saved:.4f} kg CO2 ({pct_saved:.1f}%)")
 
-    # ------------------------------------------------------------------ #
-    # ML PREDICTIONS
-    # ------------------------------------------------------------------ #
+
+
     print("\n" + "-" * 80)
     print(" ML MODEL PREDICTIONS")
     print("-" * 80)
@@ -176,9 +171,7 @@ def run_ml_enhanced_demo():
               f"{pred['predicted_optimal_delay_hours']:.1f} h")
         print(f"     Confidence             : {pred['confidence_carbon']}")
 
-    # ------------------------------------------------------------------ #
-    # SUMMARY
-    # ------------------------------------------------------------------ #
+   
     print("\n" + "=" * 80)
     print(" SUMMARY")
     print("=" * 80)

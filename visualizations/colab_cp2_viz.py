@@ -8,10 +8,7 @@ Run this entire script in a single Colab cell to generate Checkpoint 2 graphs
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ============================================================================
-# ACTUAL DATA from test_checkpoint1.py and test_checkpoint2.py results
-# ============================================================================
-
+# Actual data from test_checkpoint1.py and test_checkpoint2.py results
 cp_comparison = {
     'cp1_carbon_kg': 1.04,       # from results/checkpoint1_results.json
     'cp2_carbon_kg': 0.57,       # from results/checkpoint2_results.json
@@ -44,10 +41,6 @@ cp1_features = ['ML Carbon\nPrediction', 'Single-Job\nScheduling', 'Greedy\nBase
 cp2_new_features = ['Batch\nOptimization', 'Dependency\nHandling',
                     'Real-time\nMonitoring', 'Constraint\nSolver', 'Penalty-based\nFeasibility']
 
-
-# ============================================================================
-# MAIN DASHBOARD
-# ============================================================================
 
 def create_checkpoint2_comparison():
     fig = plt.figure(figsize=(16, 10))
@@ -88,9 +81,7 @@ def create_checkpoint2_comparison():
                 linewidth=1.5, alpha=0.5, label=f'CP1 baseline: {carbon_values[0]:.2f} kg')
     ax1.legend(loc='upper right', fontsize=9)
 
-    # ------------------------------------------------------------------ #
-    # PANEL 2: Feature Evolution CP1 -> CP2
-    # ------------------------------------------------------------------ #
+    # Comparison of features (CP1 and CP2)
     ax2 = fig.add_subplot(gs[0, 1])
 
     y_cp1 = np.arange(len(cp1_features))
@@ -113,12 +104,10 @@ def create_checkpoint2_comparison():
     ax2.axhline(y=len(cp1_features) + 0.25, color='#666', linestyle='--',
                 linewidth=2, alpha=0.5)
 
-    # ------------------------------------------------------------------ #
-    # PANEL 3: Gantt - spans bottom row
-    # ------------------------------------------------------------------ #
+   # Gantt chart comparing optimized schedule vs baseline
     ax3 = fig.add_subplot(gs[1, :])
 
-    # Optimized schedule (green)
+    # Optimized schedule
     for i, job in enumerate(jobs_schedule):
         ax3.barh(i + 0.2, job['duration'], left=job['start'], height=0.35,
                  color=job['color'], alpha=0.9, edgecolor='white', linewidth=2,
@@ -130,7 +119,7 @@ def create_checkpoint2_comparison():
                  f"{job['start']}h\u2192{job['start'] + job['duration']}h",
                  ha='left', va='center', fontsize=9, color='#333')
 
-    # Baseline schedule (red/orange)
+    # Baseline schedule
     for i, job in enumerate(jobs_baseline):
         ax3.barh(i - 0.2, job['duration'], left=job['start'], height=0.35,
                  color=job['color'], alpha=0.6, edgecolor='white', linewidth=2,
@@ -146,16 +135,12 @@ def create_checkpoint2_comparison():
     ax3.set_xlim(0, 24)
     ax3.set_facecolor('#F8F9FA')
 
-    # Background shading for high/low carbon periods
     for period in carbon_periods:
         ax3.axvspan(period['start'], period['end'], alpha=0.12,
                     color='#FFB3B3' if 'High' in period['label'] else '#B3FFB3')
 
     ax3.legend(loc='upper right', fontsize=10)
 
-    # ------------------------------------------------------------------ #
-    # Overall
-    # ------------------------------------------------------------------ #
     fig.suptitle('Checkpoint 2: Batch Optimization Results',
                  fontsize=18, fontweight='bold', y=0.98, color='#1A2238')
 
@@ -169,10 +154,6 @@ def create_checkpoint2_comparison():
     plt.tight_layout(rect=[0, 0.03, 1, 0.97])
     return fig
 
-
-# ============================================================================
-# INDIVIDUAL CHARTS
-# ============================================================================
 
 def create_cp_comparison_only():
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -197,16 +178,13 @@ def create_cp_comparison_only():
     return fig
 
 
-# ============================================================================
-# MAIN
-# ============================================================================
 
 if __name__ == "__main__":
     print("=" * 70)
     print("CHECKPOINT 2 VISUALIZATION GENERATOR")
     print("=" * 70)
 
-    print("\n Creating 2-panel dashboard...")
+    print("\n Creating 2-panel dashboard")
     fig_main = create_checkpoint2_comparison()
     plt.savefig('checkpoint2_comparison.png', dpi=300,
                 bbox_inches='tight', facecolor='white')

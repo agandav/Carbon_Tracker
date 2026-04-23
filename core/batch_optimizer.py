@@ -1,5 +1,5 @@
 """
-Batch Job Optimizer - NEW for Checkpoint 2
+Batch Job Optimizer (Checkpoint 2)
 Optimizes scheduling for multiple jobs simultaneously using constraint optimization
 """
 
@@ -12,8 +12,7 @@ import time
 
 class BatchJobOptimizer:
     """
-    Advanced batch optimization using constrained optimization
-    NEW COMPONENT for Checkpoint 2 - goes beyond single-job scheduling
+    Advanced batch optimization using constrained optimization, goes beyond single-job scheduling
     """
     
     def __init__(self, carbon_forecast: List[float], forecast_hours: int = 24):
@@ -37,7 +36,7 @@ class BatchJobOptimizer:
             jobs: List of job dictionaries with:
                 - duration_hours: float
                 - energy_kwh: float
-                - priority: int (0=low, 1=med, 2=high)
+                - priority: int (0 = low, 1 = med, 2 = high)
                 - deadline_hours: float (hours from now)
                 - dependencies: List[int] (job indices that must finish first)
         
@@ -72,7 +71,7 @@ class BatchJobOptimizer:
         # Constraints
         constraints = []
         
-        # 1. Deadline constraints
+        # Deadline constraints
         for i, job in enumerate(jobs):
             if job.get('deadline_hours'):
                 constraints.append({
@@ -81,7 +80,7 @@ class BatchJobOptimizer:
                         job['deadline_hours'] - (x[i] + job['duration_hours'])
                 })
         
-        # 2. Dependency constraints (job j must start after job i finishes)
+        # Dependency constraints (job j must start after job i finishes)
         for i, job in enumerate(jobs):
             if job.get('dependencies'):
                 for dep_idx in job['dependencies']:
@@ -91,15 +90,15 @@ class BatchJobOptimizer:
                             x[i] - (x[dep] + jobs[dep]['duration_hours'])
                     })
         
-        # Bounds: all jobs must start within forecast window
+        # All jobs must start within forecast window
         bounds = [(0, self.forecast_hours - job['duration_hours']) 
                  for job in jobs]
         
-        # Use basin-hopping for global optimization
+        # Use basin-hopping system for global optimization
         def constrained_objective(start_times):
             carbon = objective(start_times)
             
-            # Add penalty for constraint violations
+            # Add penalty for any constraint violations
             penalty = 0
             for i, job in enumerate(jobs):
                 # Deadline constraint
@@ -123,7 +122,7 @@ class BatchJobOptimizer:
             
             return carbon + penalty
         
-        # Custom step-taking function
+        # Step function
         class BoundedStep:
             def __init__(self, stepsize=0.5, bounds=None):
                 self.stepsize = stepsize
@@ -136,7 +135,7 @@ class BatchJobOptimizer:
                         x_new[i] = np.clip(x_new[i], self.bounds[i][0], self.bounds[i][1])
                 return x_new
         
-        # Try multiple initial guesses
+        # Trying multiple initial guesses
         best_result = None
         best_carbon = float('inf')
         
@@ -161,13 +160,13 @@ class BatchJobOptimizer:
         
         result = best_result
         
-        # Calculate results
+        # Calculates results
         optimized_starts = result.x
         baseline_carbon = objective(np.zeros(n_jobs))  # Baseline: all jobs start immediately
         optimized_carbon = result.fun
         carbon_saved = baseline_carbon - optimized_carbon
         
-        # Prepare detailed results
+        # Prepares detailed results
         job_results = []
         for i, job in enumerate(jobs):
             start_time = optimized_starts[i]
@@ -196,7 +195,7 @@ class BatchJobOptimizer:
     
     def get_schedule(self, jobs: List[Dict]) -> Dict[str, float]:
         """
-        Get simple job_id -> start_time mapping from optimization results
+        Get simple job_id: start_time mapping from optimization results
         
         Args:
             jobs: Original job list with 'id' field

@@ -8,9 +8,8 @@ NO EXTERNAL FILES NEEDED - All data embedded from actual run results
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ============================================================================
-# ACTUAL DATA from running ml_predictor.py with n_samples=1000, seed=42
-# ============================================================================
+# Actual metrics from running ml_predictor.py with n_samples=1000, seed=42
+
 
 ml_metrics = {
     'carbon_model': {

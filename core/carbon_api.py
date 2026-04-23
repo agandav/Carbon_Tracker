@@ -19,7 +19,7 @@ class CarbonIntensityAPI:
         """
         self.region = region
         self.base_url = "https://api.electricitymap.org/v3"
-        # Using mock data for demo - in production would use real API key
+        # Using mock data for demo: in production would use real API key
         self.use_mock = True
         
     def get_current_intensity(self) -> Dict:

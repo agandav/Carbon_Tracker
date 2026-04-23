@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, 'core'))
 RESULTS_DIR = os.path.join(PROJECT_ROOT, 'results')
 CP1_RESULTS_PATH = os.path.join(RESULTS_DIR, 'checkpoint1_results.json')
 
-np.random.seed(42)  # FIXED SEED FOR CONSISTENT RESULTS
+np.random.seed(42) # For reproducibility
 
 def generate_forecast():
     """24-hour carbon forecast"""
@@ -44,8 +44,8 @@ def test_checkpoint1():
     print(f"\n Current Carbon Intensity: {current_intensity:.2f} gCO2/kWh")
     print(f"24-hour Forecast Range: {min(f['value'] for f in forecast):.2f} - {max(f['value'] for f in forecast):.2f} gCO2/kWh")
     
-    # Define 2 jobs with flexible deadlines - realistic for daily batch processing
-    # Total: 8 hours of work, 24 hour window - can easily avoid all peaks
+    # Define 2 jobs with flexible deadlines, realistic for daily batch processing
+    # Total: 8 hours of work, 24 hour window and can avoid all peaks
     jobs = [
         {'id': 'train_model', 'duration': 5.0, 'power': 300, 'deadline': 24},
         {'id': 'process_data', 'duration': 3.0, 'power': 200, 'deadline': 24}
@@ -55,8 +55,8 @@ def test_checkpoint1():
     for job in jobs:
         print(f"   - {job['id']}: {job['duration']}h, {job['power']}W, deadline {job['deadline']}h")
     
-    # CHECKPOINT 1 APPROACH: Jobs arrive at hour 6 (business hours), run immediately (greedy)
-    # This represents naive scheduling that doesn't consider carbon
+    # Jobs arrive at hour 6 (business hours), run immediately (greedy)
+    # Naive scheduling that doesn't consider carbon
     ARRIVAL_HOUR = 6
     
     total_carbon_cp1 = 0
@@ -71,7 +71,7 @@ def test_checkpoint1():
         duration = int(job['duration'])
         energy_kwh = (job['power'] * duration) / 1000
         
-        # Simple average over integer hours
+        # Simple average over integer form hours
         intensity_sum = 0
         for h_offset in range(duration):
             hour_idx = start_hour + h_offset
@@ -88,7 +88,7 @@ def test_checkpoint1():
     print(f"CHECKPOINT 1 TOTAL CARBON EMISSIONS: {total_carbon_cp1:.2f} kg CO2")
     print(f"{'=' * 60}")
     
-    # Save results
+    # Saves results
     results = {
         'checkpoint': 1,
         'strategy': 'greedy_immediate',

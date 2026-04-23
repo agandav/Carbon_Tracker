@@ -1,5 +1,5 @@
 """
-Real-Time Monitoring Dashboard - NEW for Checkpoint 2
+Real-Time Monitoring Dashboard (Checkpoint 2)
 Tracks live carbon intensity and provides real-time recommendations
 """
 
@@ -67,23 +67,23 @@ class RealTimeMonitor:
             job['status'] = 'completed'
             job['completed_at'] = datetime.now().isoformat()
             
-            # Calculate actual carbon used
+            # Calculates the actual carbon used
             actual_carbon = (actual_energy_kwh * avg_carbon_intensity) / 1000
             job['actual_carbon_kg'] = actual_carbon
-            
-            # Calculate savings vs immediate start
+
+            # Calculate savings compared to immediate start
             immediate_carbon_intensity = job['info'].get('immediate_intensity', 
                                                          avg_carbon_intensity + 100)
             immediate_carbon = (actual_energy_kwh * immediate_carbon_intensity) / 1000
             carbon_saved = immediate_carbon - actual_carbon
             
-            # Update cumulative metrics
+            # Updates cumulative metrics
             self.cumulative_savings['total_carbon_saved_kg'] += carbon_saved
             self.cumulative_savings['total_water_saved_liters'] += carbon_saved * 1.8
             self.cumulative_savings['total_cost_saved_usd'] += carbon_saved * 0.05
             self.cumulative_savings['jobs_optimized'] += 1
             
-            # Move to completed
+            # Move to completed jobs list
             self.completed_jobs.append(job)
             del self.active_jobs[job_id]
             

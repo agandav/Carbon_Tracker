@@ -1,5 +1,5 @@
 """
-ML Prediction Model - AI Component
+ML Prediction Model
 Predicts optimal scheduling outcomes using Random Forest
 """
 
@@ -14,12 +14,12 @@ import pickle
 
 class SchedulingPredictor:
     """
-    ML model that predicts carbon savings and optimal start times
+    ML model that predicts carbon savings and optimal start times.
     Uses Random Forest to learn from historical scheduling data
     """
     
     def __init__(self):
-        # Two models: one for carbon savings, one for optimal delay
+        # Two models one for carbon savings and one for optimal delay
         self.carbon_model = RandomForestRegressor(
             n_estimators=100,
             max_depth=10,
@@ -44,7 +44,7 @@ class SchedulingPredictor:
         
         data = []
         for _ in range(n_samples):
-            # Job characteristics
+            # Jobs
             duration = np.random.choice([2, 4, 6, 8, 12, 16, 24])  # hours
             energy_kwh = duration * np.random.uniform(30, 80)  # kWh
             priority = np.random.choice([0, 1, 2])  # low=0, med=1, high=2
@@ -54,14 +54,14 @@ class SchedulingPredictor:
             day_of_week = np.random.randint(0, 7)
             month = np.random.randint(1, 13)
             
-            # Grid conditions (realistic patterns)
+            # Grid conditions
             current_intensity = self._simulate_carbon_intensity(start_hour)
             
-            # Find optimal window (simulate)
+            # Simulate finding the optimal window
             optimal_hour = self._find_optimal_hour_pattern(start_hour, duration)
             optimal_intensity = self._simulate_carbon_intensity(optimal_hour)
             
-            # Calculate outcomes
+            # Calculate the outcomes
             delay_hours = (optimal_hour - start_hour) % 24
             immediate_emissions = energy_kwh * current_intensity / 1000
             optimal_emissions = energy_kwh * optimal_intensity / 1000
@@ -69,7 +69,7 @@ class SchedulingPredictor:
             percent_saved = (carbon_saved / immediate_emissions * 100) if immediate_emissions > 0 else 0
             
             data.append({
-                # Features (X)
+                # Features (x value)
                 'duration_hours': duration,
                 'energy_kwh': energy_kwh,
                 'priority': priority,
@@ -80,7 +80,7 @@ class SchedulingPredictor:
                 'is_weekend': 1 if day_of_week >= 5 else 0,
                 'is_daytime': 1 if 8 <= start_hour <= 18 else 0,
                 
-                # Targets (y)
+                # Targets (y value)
                 'carbon_saved_kg': carbon_saved,
                 'optimal_delay_hours': delay_hours,
                 'percent_saved': percent_saved
@@ -93,13 +93,13 @@ class SchedulingPredictor:
         # Base intensity
         base = 450
         
-        # Solar peak (10am-4pm) - lower intensity
+        # Solar peak (10am - 4pm): lower intensity
         if 10 <= hour <= 16:
             base -= np.random.uniform(100, 200)
-        # Evening peak (6pm-9pm) - higher intensity
+        # Evening peak (6pm - 9pm): higher intensity
         elif 18 <= hour <= 21:
             base += np.random.uniform(50, 150)
-        # Night (wind) - moderate
+        # Night: moderate
         else:
             base += np.random.uniform(-50, 50)
             
@@ -107,7 +107,7 @@ class SchedulingPredictor:
     
     def _find_optimal_hour_pattern(self, current_hour, duration):
         """Simulate finding optimal hour (typically midday for solar)"""
-        # Best windows are typically 10am-3pm
+        # Best windows are usually  10am - 3pm
         optimal_candidates = list(range(10, 16))
         return np.random.choice(optimal_candidates)
     
@@ -170,7 +170,7 @@ class SchedulingPredictor:
         
         self.is_trained = True
         
-        # Store metrics
+        # Stores metrics
         self.metrics = {
             'carbon_model': {
                 'mse': float(carbon_mse),
@@ -203,10 +203,10 @@ class SchedulingPredictor:
         if not self.is_trained:
             raise ValueError("Model must be trained before prediction!")
         
-        # Prepare features
+        # Prepares features
         X = pd.DataFrame([job_features])[self.feature_names]
         
-        # Make predictions
+        # Makes predictions
         carbon_saved = self.carbon_model.predict(X)[0]
         optimal_delay = self.delay_model.predict(X)[0]
         
@@ -252,13 +252,13 @@ def train_and_evaluate():
     """Train model and show evaluation results"""
     predictor = SchedulingPredictor()
     
-    # Train models
+    # Trains models
     metrics = predictor.train(n_samples=1000)
     
-    # Save model
+    # Saves model
     predictor.save_model('/home/claude/ml_scheduler_model.pkl')
     
-    # Save metrics to JSON
+    # Saves metrics to JSON form for easy access
     with open('/home/claude/ml_model_metrics.json', 'w') as f:
         json.dump(metrics, f, indent=2)
     
@@ -275,8 +275,8 @@ def train_and_evaluate():
         'duration_hours': 8,
         'energy_kwh': 450,
         'priority': 1,
-        'start_hour': 20,  # 8 PM
-        'day_of_week': 2,  # Wednesday
+        'start_hour': 20,  # 8 PM (24 hour format)
+        'day_of_week': 2,  # Wednesday (Starting from 0=Monday)
         'month': 2,
         'current_intensity': 580,
         'is_weekend': 0,
